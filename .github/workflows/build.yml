@@ -1,0 +1,51 @@
+name: Build Windows e macOS
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias
+        run: |
+          pip install PySide6 pyinstaller
+      - name: Gerar executavel
+        run: |
+          pyinstaller --clean --noconfirm --name TemporizadorDigital --onefile --windowed --add-data "temporizador-digital.svg;." main.py
+      - name: Enviar artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: TemporizadorDigital-Windows
+          path: dist/TemporizadorDigital.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar dependencias
+        run: |
+          pip install PySide6 pyinstaller
+      - name: Gerar aplicativo
+        run: |
+          pyinstaller --clean --noconfirm --name TemporizadorDigital --windowed --add-data "temporizador-digital.svg:." main.py
+      - name: Cria arquivo DMG
+        run: |
+          mkdir -p dist/dmg
+          cp -r dist/TemporizadorDigital.app dist/dmg/
+          hdiutil create -volname "Temporizador Digital" -srcfolder dist/dmg -ov -format UDZO dist/TemporizadorDigital.dmg
+      - name: Enviar artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: TemporizadorDigital-macOS
+          path: dist/TemporizadorDigital.dmg

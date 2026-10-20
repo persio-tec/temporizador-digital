@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Temporizador Digital
+Comment=Relógio, temporizador, alarme sonoro e tarefas salvas automaticamente
+Exec=/usr/sbin/python3 /home/persio/Projetos/temporizador-digital/main.py
+Icon=temporizador-digital
+Terminal=false
+Categories=Utility;Clock;
+StartupNotify=true

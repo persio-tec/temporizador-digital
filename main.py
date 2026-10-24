@@ -329,6 +329,10 @@ class TimerWindow(QMainWindow):
 
     def _load_state(self) -> None:
         STATE_DIRECTORY.mkdir(parents=True, exist_ok=True)
+        try:
+            os.chmod(STATE_DIRECTORY, 0o700)
+        except OSError:
+            pass
         if not STATE_FILE.exists():
             make_alarm_sound(SOUND_FILE)
             self.sound.setSource(QUrl.fromLocalFile(str(SOUND_FILE)))
@@ -343,7 +347,7 @@ class TimerWindow(QMainWindow):
                 "Não foi possível carregar os dados",
                 f"Os dados salvos não puderam ser lidos. O arquivo foi mantido intacto.\n\n{error}",
             )
-            raise RuntimeError("Não foi possível carregar os dados do temporizador.") from error
+            return
 
         if not isinstance(state, dict):
             raise RuntimeError(f"Formato inválido em {STATE_FILE}.")
@@ -434,6 +438,10 @@ class TimerWindow(QMainWindow):
                 encoding="utf-8",
             )
             os.replace(temporary_file, STATE_FILE)
+            try:
+                os.chmod(STATE_FILE, 0o600)
+            except OSError:
+                pass
         except OSError as error:
             self.save_label.setText(f"Falha ao salvar automaticamente: {error}")
             self.save_label.setStyleSheet("color: #ff9c9c")
